@@ -1,24 +1,26 @@
+import { getItemActivity } from "@/lib/items";
 import { collections, items, type MockCollection } from "@/lib/mock-data";
 
 export function getFavoriteCollections(): MockCollection[] {
   return collections.filter((collection) => collection.isFavorite);
 }
 
-// Most recent activity is the latest lastUsedAt/createdAt of any item in the collection.
+// Most recent activity is the latest activity of any item in the collection.
 function getLastActivity(collectionId: string): number {
   return items
     .filter((item) => item.collectionIds.includes(collectionId))
-    .reduce((latest, item) => {
-      const time = new Date(item.lastUsedAt ?? item.createdAt).getTime();
-      return Math.max(latest, time);
-    }, 0);
+    .reduce((latest, item) => Math.max(latest, getItemActivity(item)), 0);
+}
+
+export function getCollectionsByRecentActivity(): MockCollection[] {
+  return collections
+    .map((collection) => ({ collection, lastActivity: getLastActivity(collection.id) }))
+    .sort((a, b) => b.lastActivity - a.lastActivity)
+    .map(({ collection }) => collection);
 }
 
 export function getRecentCollections(limit: number): MockCollection[] {
-  return collections
+  return getCollectionsByRecentActivity()
     .filter((collection) => !collection.isFavorite)
-    .map((collection) => ({ collection, lastActivity: getLastActivity(collection.id) }))
-    .sort((a, b) => b.lastActivity - a.lastActivity)
-    .slice(0, limit)
-    .map(({ collection }) => collection);
+    .slice(0, limit);
 }
