@@ -1,6 +1,6 @@
 # Current Feature
 
-Dashboard UI Phase 3 - Phase 3 of 3 for the dashboard UI layout: main content area with stats cards, recent collections, pinned items, and recent items.
+<!-- Feature Name and Description -->
 
 ## Status
 
