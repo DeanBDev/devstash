@@ -1,5 +1,7 @@
 // Loads .env before the Prisma client reads DATABASE_URL (Prisma 7 doesn't load it automatically).
 import "dotenv/config";
+import bcrypt from "bcryptjs";
+import { DEMO_USER, SEED_COLLECTIONS } from "../prisma/seed-data";
 import { prisma } from "../src/lib/prisma";
 
 const EXPECTED_SYSTEM_TYPES = 7;
@@ -10,6 +12,14 @@ let failures = 0;
 function check(label: string, passed: boolean, detail = ""): void {
   if (!passed) failures++;
   console.log(`${passed ? "✅" : "❌"} ${label}${detail ? ` (${detail})` : ""}`);
+}
+
+// First line of the text, shortened with an ellipsis if anything was cut off.
+function truncate(text: string, length: number): string {
+  const firstLine = text.split("\n")[0];
+  return firstLine.length > length || text.includes("\n")
+    ? `${firstLine.slice(0, length)}…`
+    : firstLine;
 }
 
 async function checkConnection(): Promise<void> {
@@ -34,6 +44,58 @@ async function checkSystemTypes(): Promise<void> {
     `System item types seeded (${EXPECTED_SYSTEM_TYPES})`,
     types.length === EXPECTED_SYSTEM_TYPES,
     `found ${types.length}`
+  );
+}
+
+async function checkDemoUser() {
+  const user = await prisma.user.findUnique({ where: { email: DEMO_USER.email } });
+  check(`Demo user exists (${DEMO_USER.email})`, user !== null);
+  if (!user) return null;
+
+  const passwordMatches = user.password
+    ? await bcrypt.compare(DEMO_USER.password, user.password)
+    : false;
+  check("Demo user password hash matches", passwordMatches);
+  check("Demo user is verified and not Pro", user.emailVerified !== null && !user.isPro);
+  return user;
+}
+
+// Fetches the demo user's collections and items, prints them, and compares against the seed data.
+async function checkDemoData(): Promise<void> {
+  const user = await checkDemoUser();
+  if (!user) return;
+
+  const collections = await prisma.collection.findMany({
+    where: { userId: user.id },
+    orderBy: { createdAt: "asc" },
+    include: {
+      items: { include: { item: { include: { itemType: true } } } },
+    },
+  });
+
+  console.log(`\n📦 ${user.name} — ${collections.length} collections`);
+  for (const collection of collections) {
+    console.log(`\n  ${collection.name} (${collection.items.length} items) — ${collection.description}`);
+    for (const { item } of collection.items) {
+      const detail = item.url ?? truncate(item.content ?? "", 50);
+      console.log(`    • [${item.itemType.name}] ${item.title} — ${detail}`);
+    }
+
+    const expected = SEED_COLLECTIONS.find((seed) => seed.name === collection.name);
+    check(
+      `${collection.name} matches seed`,
+      expected?.items.length === collection.items.length,
+      `expected ${expected?.items.length ?? 0}, found ${collection.items.length}`
+    );
+  }
+  console.log();
+
+  const expectedItems = SEED_COLLECTIONS.reduce((total, seed) => total + seed.items.length, 0);
+  const itemCount = await prisma.item.count({ where: { userId: user.id } });
+  check(
+    `Demo data has ${SEED_COLLECTIONS.length} collections and ${expectedItems} items`,
+    collections.length === SEED_COLLECTIONS.length && itemCount === expectedItems,
+    `found ${collections.length} collections, ${itemCount} items`
   );
 }
 
@@ -82,6 +144,7 @@ async function main(): Promise<void> {
     await checkConnection();
     await checkMigrations();
     await checkSystemTypes();
+    await checkDemoData();
     await checkCrudAndCascade();
   } catch (error) {
     failures++;
