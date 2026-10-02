@@ -9,11 +9,31 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import SidebarCount from "@/components/dashboard/SidebarCount";
-import type { MockCollection } from "@/lib/mock-data";
+import { cn } from "@/lib/utils";
+import type { CollectionSummary } from "@/lib/db/collections";
+import { ITEM_TYPE_DOT_COLORS } from "@/lib/item-types";
 
 interface SidebarCollectionsProps {
   label: string;
-  collections: MockCollection[];
+  collections: CollectionSummary[];
+}
+
+// Favorites show a star; other collections show a dot in their most-used type's color.
+function CollectionIndicator({ collection }: { collection: CollectionSummary }) {
+  if (collection.isFavorite) {
+    return <Star className="fill-yellow-400 text-yellow-400 group-data-[collapsible=icon]:hidden" />;
+  }
+  if (!collection.primaryType) return null;
+
+  return (
+    <span
+      title={collection.primaryType.name}
+      className={cn(
+        "size-2 shrink-0 rounded-full group-data-[collapsible=icon]:hidden",
+        ITEM_TYPE_DOT_COLORS[collection.primaryType.slug]
+      )}
+    />
+  );
 }
 
 export default function SidebarCollections({ label, collections }: SidebarCollectionsProps) {
@@ -33,9 +53,7 @@ export default function SidebarCollections({ label, collections }: SidebarCollec
                 <Layers />
                 <span>{collection.name}</span>
                 <SidebarCount count={collection.itemCount} />
-                {collection.isFavorite && (
-                  <Star className="fill-yellow-400 text-yellow-400 group-data-[collapsible=icon]:hidden" />
-                )}
+                <CollectionIndicator collection={collection} />
               </SidebarMenuButton>
             </SidebarMenuItem>
           ))}

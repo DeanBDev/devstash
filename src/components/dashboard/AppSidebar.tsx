@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Boxes } from "lucide-react";
+import { Boxes, FolderOpen } from "lucide-react";
 import SidebarCollections from "@/components/dashboard/SidebarCollections";
 import SidebarTypes from "@/components/dashboard/SidebarTypes";
 import SidebarUser from "@/components/dashboard/SidebarUser";
@@ -7,6 +7,7 @@ import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
+  SidebarGroup,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -14,12 +15,29 @@ import {
   SidebarRail,
   SidebarSeparator,
 } from "@/components/ui/sidebar";
-import { getFavoriteCollections, getRecentCollections } from "@/lib/collections";
+import { getFavoriteCollections, getRecentNonFavoriteCollections } from "@/lib/db/collections";
+import { getSystemItemTypes } from "@/lib/db/items";
+import { getCurrentUserId } from "@/lib/db/users";
 import { currentUser } from "@/lib/mock-data";
 
 const RECENT_COLLECTIONS_LIMIT = 5;
 
-export default function AppSidebar() {
+async function getSidebarData(userId: string | null) {
+  if (!userId) return { types: [], favoriteCollections: [], recentCollections: [] };
+
+  const [types, favoriteCollections, recentCollections] = await Promise.all([
+    getSystemItemTypes(userId),
+    getFavoriteCollections(userId),
+    getRecentNonFavoriteCollections(userId, RECENT_COLLECTIONS_LIMIT),
+  ]);
+  return { types, favoriteCollections, recentCollections };
+}
+
+export default async function AppSidebar() {
+  const { types, favoriteCollections, recentCollections } = await getSidebarData(
+    await getCurrentUserId()
+  );
+
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader className="h-14 justify-center border-b">
@@ -36,12 +54,23 @@ export default function AppSidebar() {
       </SidebarHeader>
 
       <SidebarContent>
-        <SidebarTypes />
-        <SidebarCollections label="Favorite Collections" collections={getFavoriteCollections()} />
-        <SidebarCollections
-          label="Recent Collections"
-          collections={getRecentCollections(RECENT_COLLECTIONS_LIMIT)}
-        />
+        <SidebarTypes types={types} />
+        <SidebarCollections label="Favorite Collections" collections={favoriteCollections} />
+        <SidebarCollections label="Recent Collections" collections={recentCollections} />
+        <SidebarGroup className="pt-0">
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                tooltip="View all collections"
+                className="text-muted-foreground"
+                render={<Link href="/collections" />}
+              >
+                <FolderOpen />
+                <span>View all collections</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarGroup>
       </SidebarContent>
 
       <SidebarSeparator className="mx-0" />

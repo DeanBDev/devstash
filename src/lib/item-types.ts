@@ -8,7 +8,6 @@ import {
   Terminal,
   type LucideIcon,
 } from "lucide-react";
-import { itemTypes, type MockItemType } from "@/lib/mock-data";
 
 // Static maps keyed by type slug so Tailwind can see every class at build time.
 // Colors mirror the hex values stored on each ItemType.
@@ -42,6 +41,21 @@ export const ITEM_TYPE_RING_COLORS: Record<string, string> = {
   links: "ring-emerald-500/50",
 };
 
+export const ITEM_TYPE_DOT_COLORS: Record<string, string> = {
+  snippets: "bg-blue-500",
+  prompts: "bg-violet-500",
+  commands: "bg-orange-500",
+  notes: "bg-yellow-300",
+  files: "bg-gray-500",
+  images: "bg-pink-500",
+  links: "bg-emerald-500",
+};
+
+// System type display order in the sidebar.
+export const ITEM_TYPE_ORDER = ["snippets", "prompts", "commands", "notes", "files", "images", "links"];
+
+export const PRO_ITEM_TYPE_SLUGS = new Set(["files", "images"]);
+
 export const ITEM_TYPE_BG_COLORS: Record<string, string> = {
   snippets: "bg-blue-500/10",
   prompts: "bg-violet-500/10",
@@ -51,7 +65,3 @@ export const ITEM_TYPE_BG_COLORS: Record<string, string> = {
   images: "bg-pink-500/10",
   links: "bg-emerald-500/10",
 };
-
-export function getItemTypeById(id: string): MockItemType | undefined {
-  return itemTypes.find((type) => type.id === id);
-}

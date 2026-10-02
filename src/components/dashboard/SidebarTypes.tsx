@@ -9,20 +9,20 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import SidebarCount from "@/components/dashboard/SidebarCount";
-import { ITEM_TYPE_ICONS, ITEM_TYPE_TEXT_COLORS } from "@/lib/item-types";
-import { itemTypes, items } from "@/lib/mock-data";
+import type { ItemTypeWithCount } from "@/lib/db/items";
+import { ITEM_TYPE_ICONS, ITEM_TYPE_TEXT_COLORS, PRO_ITEM_TYPE_SLUGS } from "@/lib/item-types";
 
-function getItemCount(typeId: string): number {
-  return items.filter((item) => item.itemTypeId === typeId).length;
+interface SidebarTypesProps {
+  types: ItemTypeWithCount[];
 }
 
-export default function SidebarTypes() {
+export default function SidebarTypes({ types }: SidebarTypesProps) {
   return (
     <SidebarGroup>
       <SidebarGroupLabel>Types</SidebarGroupLabel>
       <SidebarGroupContent>
         <SidebarMenu>
-          {itemTypes.map((type) => {
+          {types.map((type) => {
             const Icon = ITEM_TYPE_ICONS[type.slug];
             const label = `${type.name}s`;
 
@@ -34,8 +34,8 @@ export default function SidebarTypes() {
                 >
                   {Icon && <Icon className={ITEM_TYPE_TEXT_COLORS[type.slug]} />}
                   <span>{label}</span>
-                  <SidebarCount count={getItemCount(type.id)} />
-                  {type.isPro && (
+                  <SidebarCount count={type.itemCount} />
+                  {PRO_ITEM_TYPE_SLUGS.has(type.slug) && (
                     <Badge variant="secondary" className="group-data-[collapsible=icon]:hidden">
                       Pro
                     </Badge>

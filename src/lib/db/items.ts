@@ -1,5 +1,6 @@
 import type { Prisma } from "@/generated/prisma/client";
 import type { ContentType } from "@/generated/prisma/enums";
+import { ITEM_TYPE_ORDER } from "@/lib/item-types";
 import { prisma } from "@/lib/prisma";
 
 export interface ItemSummary {
@@ -15,6 +16,13 @@ export interface ItemSummary {
   lastActivityAt: Date;
   type: { id: string; name: string; slug: string };
   tags: string[];
+}
+
+export interface ItemTypeWithCount {
+  id: string;
+  name: string;
+  slug: string;
+  itemCount: number;
 }
 
 export interface ItemStats {
@@ -65,6 +73,22 @@ export async function getRecentItems(userId: string, limit: number): Promise<Ite
     select: ITEM_SUMMARY_SELECT,
   });
   return items.map(toItemSummary);
+}
+
+// System types with the user's item count for each, in sidebar display order.
+export async function getSystemItemTypes(userId: string): Promise<ItemTypeWithCount[]> {
+  const [types, counts] = await Promise.all([
+    prisma.itemType.findMany({
+      where: { isSystem: true },
+      select: { id: true, name: true, slug: true },
+    }),
+    prisma.item.groupBy({ by: ["itemTypeId"], where: { userId }, _count: { _all: true } }),
+  ]);
+
+  const countByType = new Map(counts.map((row) => [row.itemTypeId, row._count._all]));
+  return types
+    .map((type) => ({ ...type, itemCount: countByType.get(type.id) ?? 0 }))
+    .sort((a, b) => ITEM_TYPE_ORDER.indexOf(a.slug) - ITEM_TYPE_ORDER.indexOf(b.slug));
 }
 
 export async function getItemStats(userId: string): Promise<ItemStats> {
