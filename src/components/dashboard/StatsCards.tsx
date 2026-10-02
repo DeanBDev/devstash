@@ -1,6 +1,7 @@
 import { FolderHeart, Heart, Layers, Package, type LucideIcon } from "lucide-react";
 import { Card } from "@/components/ui/card";
-import { collections, items } from "@/lib/mock-data";
+import type { CollectionStats } from "@/lib/db/collections";
+import { items } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
 
 interface Stat {
@@ -10,7 +11,11 @@ interface Stat {
   colorClassName: string;
 }
 
-function getStats(): Stat[] {
+interface StatsCardsProps {
+  collectionStats: CollectionStats;
+}
+
+function getStats(collectionStats: CollectionStats): Stat[] {
   return [
     {
       label: "Items",
@@ -20,7 +25,7 @@ function getStats(): Stat[] {
     },
     {
       label: "Collections",
-      value: collections.length,
+      value: collectionStats.total,
       icon: Layers,
       colorClassName: "bg-violet-500/10 text-violet-500",
     },
@@ -32,17 +37,17 @@ function getStats(): Stat[] {
     },
     {
       label: "Favorite collections",
-      value: collections.filter((collection) => collection.isFavorite).length,
+      value: collectionStats.favorites,
       icon: FolderHeart,
       colorClassName: "bg-yellow-400/10 text-yellow-400",
     },
   ];
 }
 
-export default function StatsCards() {
+export default function StatsCards({ collectionStats }: StatsCardsProps) {
   return (
     <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-      {getStats().map(({ label, value, icon: Icon, colorClassName }) => (
+      {getStats(collectionStats).map(({ label, value, icon: Icon, colorClassName }) => (
         <Card key={label} className="flex-row items-center gap-3 px-4">
           <div
             className={cn(

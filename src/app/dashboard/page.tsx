@@ -2,14 +2,24 @@ import CollectionCard from "@/components/dashboard/CollectionCard";
 import DashboardSection from "@/components/dashboard/DashboardSection";
 import ItemCard from "@/components/dashboard/ItemCard";
 import StatsCards from "@/components/dashboard/StatsCards";
-import { getCollectionsByRecentActivity } from "@/lib/collections";
+import { getCollectionStats, getRecentCollections } from "@/lib/db/collections";
+import { getCurrentUserId } from "@/lib/db/users";
 import { getPinnedItems, getRecentItems } from "@/lib/items";
+
+// Render per request so the dashboard reflects the current database state.
+export const dynamic = "force-dynamic";
 
 const RECENT_COLLECTIONS_LIMIT = 6;
 const RECENT_ITEMS_LIMIT = 10;
 
-export default function DashboardPage() {
-  const recentCollections = getCollectionsByRecentActivity().slice(0, RECENT_COLLECTIONS_LIMIT);
+export default async function DashboardPage() {
+  const userId = await getCurrentUserId();
+  const [recentCollections, collectionStats] = userId
+    ? await Promise.all([
+        getRecentCollections(userId, RECENT_COLLECTIONS_LIMIT),
+        getCollectionStats(userId),
+      ])
+    : [[], { total: 0, favorites: 0 }];
   const pinnedItems = getPinnedItems();
   const recentItems = getRecentItems(RECENT_ITEMS_LIMIT);
 
@@ -20,7 +30,7 @@ export default function DashboardPage() {
         <p className="text-sm text-muted-foreground">Your developer knowledge, organized.</p>
       </div>
 
-      <StatsCards />
+      <StatsCards collectionStats={collectionStats} />
 
       <DashboardSection
         title="Recent collections"

@@ -3,18 +3,15 @@ import { Heart } from "lucide-react";
 import TypeIconBadge from "@/components/dashboard/TypeIconBadge";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { ITEM_TYPE_RING_COLORS, getItemTypeById } from "@/lib/item-types";
-import type { MockCollection, MockItemType } from "@/lib/mock-data";
+import { ITEM_TYPE_RING_COLORS } from "@/lib/item-types";
+import type { CollectionSummary } from "@/lib/db/collections";
 
 interface CollectionCardProps {
-  collection: MockCollection;
+  collection: CollectionSummary;
 }
 
 export default function CollectionCard({ collection }: CollectionCardProps) {
-  const types = collection.typeIds
-    .map(getItemTypeById)
-    .filter((type): type is MockItemType => type !== undefined);
-  const primaryType = types[0];
+  const { primaryType, types } = collection;
 
   return (
     <Link href={`/collections/${collection.id}`} className="group/collection rounded-xl">
@@ -27,7 +24,9 @@ export default function CollectionCard({ collection }: CollectionCardProps) {
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
             <h3 className="truncate font-semibold">{collection.name}</h3>
-            <p className="text-xs text-muted-foreground">{collection.itemCount} items</p>
+            <p className="text-xs text-muted-foreground">
+              {collection.itemCount} {collection.itemCount === 1 ? "item" : "items"}
+            </p>
           </div>
           {collection.isFavorite && (
             <Heart className="size-4 shrink-0 fill-yellow-400 text-yellow-400" aria-label="Favorite" />

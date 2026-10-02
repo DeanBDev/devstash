@@ -1,9 +1,7 @@
 import { cn } from "@/lib/utils";
 import { ITEM_TYPE_BG_COLORS, ITEM_TYPE_ICONS, ITEM_TYPE_TEXT_COLORS } from "@/lib/item-types";
-import type { MockItemType } from "@/lib/mock-data";
-
 interface TypeIconBadgeProps {
-  type: MockItemType;
+  type: { name: string; slug: string };
   className?: string;
 }
 
