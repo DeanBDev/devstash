@@ -2,7 +2,7 @@ const MINUTE = 60 * 1000;
 const HOUR = 60 * MINUTE;
 const DAY = 24 * HOUR;
 
-export function formatRelativeTime(date: string, now: number = Date.now()): string {
+export function formatRelativeTime(date: Date | string, now: number = Date.now()): string {
   const diff = Math.max(0, now - new Date(date).getTime());
 
   if (diff < HOUR) return `${Math.max(1, Math.floor(diff / MINUTE))}m ago`;

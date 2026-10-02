@@ -3,8 +3,8 @@ import DashboardSection from "@/components/dashboard/DashboardSection";
 import ItemCard from "@/components/dashboard/ItemCard";
 import StatsCards from "@/components/dashboard/StatsCards";
 import { getCollectionStats, getRecentCollections } from "@/lib/db/collections";
+import { getItemStats, getPinnedItems, getRecentItems } from "@/lib/db/items";
 import { getCurrentUserId } from "@/lib/db/users";
-import { getPinnedItems, getRecentItems } from "@/lib/items";
 
 // Render per request so the dashboard reflects the current database state.
 export const dynamic = "force-dynamic";
@@ -12,16 +12,33 @@ export const dynamic = "force-dynamic";
 const RECENT_COLLECTIONS_LIMIT = 6;
 const RECENT_ITEMS_LIMIT = 10;
 
+const EMPTY_STATS = { total: 0, favorites: 0 };
+
+async function getDashboardData(userId: string | null) {
+  if (!userId) {
+    return {
+      recentCollections: [],
+      pinnedItems: [],
+      recentItems: [],
+      itemStats: EMPTY_STATS,
+      collectionStats: EMPTY_STATS,
+    };
+  }
+
+  const [recentCollections, pinnedItems, recentItems, itemStats, collectionStats] =
+    await Promise.all([
+      getRecentCollections(userId, RECENT_COLLECTIONS_LIMIT),
+      getPinnedItems(userId),
+      getRecentItems(userId, RECENT_ITEMS_LIMIT),
+      getItemStats(userId),
+      getCollectionStats(userId),
+    ]);
+  return { recentCollections, pinnedItems, recentItems, itemStats, collectionStats };
+}
+
 export default async function DashboardPage() {
-  const userId = await getCurrentUserId();
-  const [recentCollections, collectionStats] = userId
-    ? await Promise.all([
-        getRecentCollections(userId, RECENT_COLLECTIONS_LIMIT),
-        getCollectionStats(userId),
-      ])
-    : [[], { total: 0, favorites: 0 }];
-  const pinnedItems = getPinnedItems();
-  const recentItems = getRecentItems(RECENT_ITEMS_LIMIT);
+  const { recentCollections, pinnedItems, recentItems, itemStats, collectionStats } =
+    await getDashboardData(await getCurrentUserId());
 
   return (
     <div className="mx-auto max-w-6xl space-y-10">
@@ -30,7 +47,7 @@ export default async function DashboardPage() {
         <p className="text-sm text-muted-foreground">Your developer knowledge, organized.</p>
       </div>
 
-      <StatsCards collectionStats={collectionStats} />
+      <StatsCards itemStats={itemStats} collectionStats={collectionStats} />
 
       <DashboardSection
         title="Recent collections"

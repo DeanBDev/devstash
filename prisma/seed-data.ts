@@ -16,7 +16,15 @@ export const SYSTEM_TYPES = [
   { id: "type_link", name: "Link", slug: "links", icon: "Link", color: "#10b981" },
 ];
 
-interface SeedTextItem {
+interface SeedItemMeta {
+  isPinned?: boolean;
+  isFavorite?: boolean;
+  tags?: string[];
+  // Sets lastUsedAt relative to seed time so "Recent items" has realistic activity.
+  lastUsedHoursAgo?: number;
+}
+
+interface SeedTextItem extends SeedItemMeta {
   type: "type_snippet" | "type_prompt" | "type_command";
   title: string;
   description: string;
@@ -24,7 +32,7 @@ interface SeedTextItem {
   language?: string;
 }
 
-interface SeedLinkItem {
+interface SeedLinkItem extends SeedItemMeta {
   type: "type_link";
   title: string;
   description: string;
@@ -36,6 +44,7 @@ export type SeedItem = SeedTextItem | SeedLinkItem;
 export interface SeedCollection {
   name: string;
   description: string;
+  isFavorite?: boolean;
   items: SeedItem[];
 }
 
@@ -43,12 +52,17 @@ export const SEED_COLLECTIONS: SeedCollection[] = [
   {
     name: "React Patterns",
     description: "Reusable React patterns and hooks",
+    isFavorite: true,
     items: [
       {
         type: "type_snippet",
         title: "useDebounce & useLocalStorage",
         description: "Custom hooks for debouncing values and persisting state.",
         language: "typescript",
+        isPinned: true,
+        isFavorite: true,
+        tags: ["react", "hooks"],
+        lastUsedHoursAgo: 1,
         content: `import { useEffect, useState } from "react";
 
 export function useDebounce<T>(value: T, delay = 300): T {
@@ -80,6 +94,7 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
         title: "Context provider & compound components",
         description: "Typed context provider with a compound Tabs component.",
         language: "typescript",
+        tags: ["react", "typescript"],
         content: `import { createContext, useContext, useState, type ReactNode } from "react";
 
 interface TabsContextValue {
@@ -149,11 +164,16 @@ export function groupBy<T, K extends PropertyKey>(items: T[], getKey: (item: T) 
   {
     name: "AI Workflows",
     description: "AI prompts and workflow automations",
+    isFavorite: true,
     items: [
       {
         type: "type_prompt",
         title: "Code review",
         description: "Thorough review focused on bugs, security, and readability.",
+        isPinned: true,
+        isFavorite: true,
+        tags: ["ai", "review"],
+        lastUsedHoursAgo: 3,
         content: `You are a senior software engineer doing a code review.
 
 Review the code below and report:
@@ -215,6 +235,9 @@ First list the refactorings you will make and why, then show the final code. Cal
         title: "Next.js Dockerfile",
         description: "Multi-stage Docker build for a Next.js standalone app.",
         language: "dockerfile",
+        isFavorite: true,
+        tags: ["docker", "nextjs"],
+        lastUsedHoursAgo: 50,
         content: `FROM node:22-alpine AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
@@ -265,6 +288,9 @@ CMD ["node", "server.js"]`,
         title: "Undo last commit (keep changes)",
         description: "Remove the last commit but keep its changes staged.",
         language: "bash",
+        isPinned: true,
+        tags: ["git"],
+        lastUsedHoursAgo: 26,
         content: `git reset --soft HEAD~1`,
       },
       {
@@ -279,6 +305,8 @@ CMD ["node", "server.js"]`,
         title: "Kill process on a port",
         description: "Find and kill whatever is listening on port 3000.",
         language: "bash",
+        tags: ["shell"],
+        lastUsedHoursAgo: 5,
         content: `lsof -ti :3000 | xargs kill -9`,
       },
       {
@@ -299,6 +327,8 @@ CMD ["node", "server.js"]`,
         title: "Tailwind CSS Docs",
         description: "Utility-first CSS framework reference.",
         url: "https://tailwindcss.com/docs",
+        tags: ["css", "docs"],
+        lastUsedHoursAgo: 72,
       },
       {
         type: "type_link",
