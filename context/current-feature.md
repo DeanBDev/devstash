@@ -1,22 +1,18 @@
-# Current Feature: Add Pro Badge to Sidebar
+# Current Feature
 
-Add a PRO badge to the Files and Images item types in the sidebar.
+<!-- Feature Name and Description -->
 
 ## Status
 
-In Progress
+Completed
 
 ## Goals
 
-- Show a PRO badge next to the Files and Images types in the sidebar
-- Use the shadcn/ui Badge component
-- Keep the badge clean and subtle
-- Render the text "PRO" in uppercase
+<!-- Goals and Requirements -->
 
 ## Notes
 
-- Spec: `context/features/add-pro-badge-sidebar.md`
-- Sidebar already renders Pro badges from DB data (see Stats & Sidebar history); verify the existing implementation and switch it to the shadcn Badge component if it isn't already
+<!--  Any extra notes -->
 
 ## History
 
@@ -31,3 +27,4 @@ In Progress
 - **Dashboard Collections** - Recent collections grid and collection stats now load from Neon via Prisma (`src/lib/db/collections.ts`); card border color from the most-used item type (falls back to default type), type icons ordered by usage; dashboard rendered per request; temporary demo-user lookup until auth (Completed)
 - **Dashboard Items** - Pinned and recent items plus item stats now load from Neon via Prisma (`src/lib/db/items.ts`); item card icon/border/label from the item type, tags shown; pinned section hidden when empty; recent items ordered by last used then created; seed now sets pinned, favorite, tags, and lastUsedAt on demo items and favorites on two collections (Completed)
 - **Stats & Sidebar** - Sidebar now loads from Neon via Prisma: system item types with per-user counts (`getSystemItemTypes`) linking to /items/[slug] with Pro badges, favorite collections (star) and recent non-favorite collections (dot colored by most-used type), "View all collections" link to /collections; stats verified from DB; removed unused mock helpers (`src/lib/collections.ts`, `src/lib/items.ts`, `getItemTypeById`) (Completed)
+- **Pro Badge Sidebar** - Files and Images types in the sidebar show a subtle uppercase PRO badge (shadcn Badge, outline variant, muted text) placed next to the type label, hidden when the sidebar is collapsed (Completed)
