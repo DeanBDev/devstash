@@ -34,12 +34,15 @@ export default function SidebarTypes({ types }: SidebarTypesProps) {
                 >
                   {Icon && <Icon className={ITEM_TYPE_TEXT_COLORS[type.slug]} />}
                   <span>{label}</span>
-                  <SidebarCount count={type.itemCount} />
                   {PRO_ITEM_TYPE_SLUGS.has(type.slug) && (
-                    <Badge variant="secondary" className="group-data-[collapsible=icon]:hidden">
-                      Pro
+                    <Badge
+                      variant="outline"
+                      className="h-4 px-1.5 text-[10px] font-medium tracking-wider text-muted-foreground group-data-[collapsible=icon]:hidden"
+                    >
+                      PRO
                     </Badge>
                   )}
+                  <SidebarCount count={type.itemCount} />
                 </SidebarMenuButton>
               </SidebarMenuItem>
             );
