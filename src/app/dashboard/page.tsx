@@ -1,3 +1,4 @@
+import CardGrid from "@/components/dashboard/CardGrid";
 import CollectionCard from "@/components/dashboard/CollectionCard";
 import DashboardSection from "@/components/dashboard/DashboardSection";
 import ItemCard from "@/components/dashboard/ItemCard";
@@ -54,20 +55,20 @@ export default async function DashboardPage() {
         description="Keep your best resources close."
         viewAllHref="/collections"
       >
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <CardGrid>
           {recentCollections.map((collection) => (
             <CollectionCard key={collection.id} collection={collection} />
           ))}
-        </div>
+        </CardGrid>
       </DashboardSection>
 
       {pinnedItems.length > 0 && (
         <DashboardSection title="Pinned items" description="Your most-used items, close at hand.">
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <CardGrid>
             {pinnedItems.map((item) => (
               <ItemCard key={item.id} item={item} />
             ))}
-          </div>
+          </CardGrid>
         </DashboardSection>
       )}
 
@@ -75,11 +76,11 @@ export default async function DashboardPage() {
         title="Recent items"
         description={`${recentItems.length} recently used resources`}
       >
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <CardGrid>
           {recentItems.map((item) => (
             <ItemCard key={item.id} item={item} />
           ))}
-        </div>
+        </CardGrid>
       </DashboardSection>
     </div>
   );
