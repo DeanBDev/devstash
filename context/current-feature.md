@@ -2,17 +2,23 @@
 
 <!-- Feature Name and Description -->
 
+Code Scanner Quick Wins - low-risk cleanups from the code-scanner audit. No behavior or UI changes.
+
 ## Status
 
-Completed
+In Progress
 
 ## Goals
 
-<!-- Goals and Requirements -->
+- Wrap `getCurrentUserId()` in React `cache()` so it runs once per request (`src/lib/db/users.ts`)
+- Extract a small `CardGrid` component for the grid markup repeated 3 times in `src/app/dashboard/page.tsx`
+- Make `getInitials` in `SidebarUser.tsx` robust to empty name parts (`.filter(Boolean)`)
 
 ## Notes
 
-<!--  Any extra notes -->
+- `src/lib/mock-data.ts` is intentionally left untouched for now
+- Deliberately excluded as higher risk or needing design decisions: collection/item query rewrites, Suspense for the sidebar, seed transaction, seed password env var, `item-types.ts` map consolidation, replacing the mock sidebar user
+- Verify with `npm run lint` and `npm run build`, then check the dashboard in the browser
 
 ## History
 
