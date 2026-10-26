@@ -1,18 +1,37 @@
-# Current Feature
+# Current Feature: Auth Phase 2 - Email/Password Credentials Provider
 
-<!-- Feature Name and Description -->
+Add a Credentials provider for email/password authentication, with a registration API route.
 
 ## Status
 
-Completed
+In Progress
 
 ## Goals
 
-<!-- Goals and Requirements -->
+- Use bcryptjs for hashing (already installed)
+- Confirm the `password` field exists on the User model (add via migration only if missing)
+- Add a Credentials provider placeholder (`authorize: () => null`) to `src/auth.config.ts`
+- Override the Credentials provider in `src/auth.ts` with bcrypt validation
+- Create `POST /api/auth/register`:
+  - Accept name, email, password, confirmPassword
+  - Validate that the passwords match
+  - Check whether the user already exists
+  - Hash the password with bcryptjs
+  - Create the user in the database
+  - Return a success/error response
 
 ## Notes
 
-<!--  Any extra notes -->
+- Spec: `context/features/auth-phase-2-spec.md`
+- Split pattern: `auth.config.ts` keeps the edge-safe placeholder; `auth.ts` supplies the real bcrypt `authorize`
+- Credentials provider docs: https://authjs.dev/getting-started/authentication/credentials
+- Testing:
+  1. Register via curl: `curl -X POST http://localhost:3000/api/auth/register -H "Content-Type: application/json" -d '{"name":"Test","email":"test@test.com","password":"password123","confirmPassword":"password123"}'`
+  2. Go to `/api/auth/signin`
+  3. Sign in with email/password
+  4. Verify redirect to `/dashboard`
+  5. Verify GitHub OAuth still works
+- Project rules: validate input with Zod, use migrations (never `db push`), and only use the Neon `development` branch
 
 ## History
 
