@@ -1,37 +1,18 @@
-# Current Feature: Auth Phase 2 - Email/Password Credentials Provider
+# Current Feature
 
-Add a Credentials provider for email/password authentication, with a registration API route.
+<!-- Feature Name and Description -->
 
 ## Status
 
-In Progress
+Completed
 
 ## Goals
 
-- Use bcryptjs for hashing (already installed)
-- Confirm the `password` field exists on the User model (add via migration only if missing)
-- Add a Credentials provider placeholder (`authorize: () => null`) to `src/auth.config.ts`
-- Override the Credentials provider in `src/auth.ts` with bcrypt validation
-- Create `POST /api/auth/register`:
-  - Accept name, email, password, confirmPassword
-  - Validate that the passwords match
-  - Check whether the user already exists
-  - Hash the password with bcryptjs
-  - Create the user in the database
-  - Return a success/error response
+<!-- Goals and Requirements -->
 
 ## Notes
 
-- Spec: `context/features/auth-phase-2-spec.md`
-- Split pattern: `auth.config.ts` keeps the edge-safe placeholder; `auth.ts` supplies the real bcrypt `authorize`
-- Credentials provider docs: https://authjs.dev/getting-started/authentication/credentials
-- Testing:
-  1. Register via curl: `curl -X POST http://localhost:3000/api/auth/register -H "Content-Type: application/json" -d '{"name":"Test","email":"test@test.com","password":"password123","confirmPassword":"password123"}'`
-  2. Go to `/api/auth/signin`
-  3. Sign in with email/password
-  4. Verify redirect to `/dashboard`
-  5. Verify GitHub OAuth still works
-- Project rules: validate input with Zod, use migrations (never `db push`), and only use the Neon `development` branch
+<!--  Any extra notes -->
 
 ## History
 
@@ -49,3 +30,4 @@ In Progress
 - **Pro Badge Sidebar** - Files and Images types in the sidebar show a subtle uppercase PRO badge (shadcn Badge, outline variant, muted text) placed next to the type label, hidden when the sidebar is collapsed (Completed)
 - **Code Scanner Quick Wins** - Low-risk cleanups from the code-scanner audit: `getCurrentUserId` wrapped in React `cache()`, extracted `CardGrid` component for the dashboard card grids, `getInitials` ignores empty name parts (Completed)
 - **Auth Phase 1** - NextAuth v5 (`next-auth@beta`) with Prisma adapter and GitHub OAuth: split config (`src/auth.config.ts` edge-safe, `src/auth.ts` with JWT sessions and `user.id` on the session), `/api/auth/[...nextauth]` handlers, `src/proxy.ts` protecting `/dashboard/*` and redirecting to the default sign-in page, session type extension (Completed)
+- **Auth Phase 2** - Email/password sign-in: Credentials provider placeholder in `src/auth.config.ts` (with email/password form fields) overridden in `src/auth.ts` with Zod-validated bcryptjs `authorize`; `POST /api/auth/register` validates name, email, password (min 8) and matching confirmPassword with Zod, rejects existing emails (409), hashes with bcryptjs and creates the user; added `zod` dependency (Completed)
