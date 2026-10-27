@@ -1,18 +1,43 @@
-# Current Feature
+# Current Feature: Auth UI - Sign In, Register & Sign Out
 
-<!-- Feature Name and Description -->
+Replace the NextAuth default pages with custom sign-in and register pages, and add a user avatar with sign-out to the bottom of the sidebar.
 
 ## Status
 
-Completed
+In Progress
 
 ## Goals
 
-<!-- Goals and Requirements -->
+- Create a custom sign-in page at `/sign-in`:
+  - Email and password fields
+  - "Sign in with GitHub" button
+  - Link to the register page
+  - Form validation and error display
+- Create a register page at `/register`:
+  - Name, email, password, confirm password fields
+  - Validation (passwords match, email format)
+  - Submit to `/api/auth/register`
+  - Redirect to sign-in on success
+- Update the bottom of the sidebar:
+  - Show user avatar (GitHub image, or initials fallback) and user name
+  - Dropdown opening upward on avatar click with a "Sign out" link
+  - Clicking the icon goes to `/profile`
+- Create a reusable avatar component handling both the image and initials cases
 
 ## Notes
 
-<!--  Any extra notes -->
+- Spec: `context/features/auth-phase-3-spec.md`
+- Avatar logic: use `user.image` if present, otherwise initials from the name (e.g. "Brad Traversy" -> "BT")
+- Replaces the NextAuth default pages (set `pages.signIn` in the auth config; `src/proxy.ts` currently redirects to the default sign-in page)
+- The spec's testing step 4 says "top bar" but the requirements say bottom of the sidebar; treating the sidebar as correct
+- Testing:
+  1. Go to `/sign-in` - verify the custom page renders
+  2. Sign in with GitHub - verify the flow works
+  3. Sign in with email/password - verify the flow works
+  4. Verify the avatar shows (GitHub image or initials)
+  5. Click the avatar - verify the dropdown appears
+  6. Click "Sign out" - verify logout and redirect
+  7. Go to `/register`, create a new account - verify redirect to sign-in
 
 ## History
 
