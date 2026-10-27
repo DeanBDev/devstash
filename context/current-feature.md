@@ -1,43 +1,18 @@
-# Current Feature: Auth UI - Sign In, Register & Sign Out
+# Current Feature
 
-Replace the NextAuth default pages with custom sign-in and register pages, and add a user avatar with sign-out to the bottom of the sidebar.
+<!-- Feature Name and Description -->
 
 ## Status
 
-In Progress
+Completed
 
 ## Goals
 
-- Create a custom sign-in page at `/sign-in`:
-  - Email and password fields
-  - "Sign in with GitHub" button
-  - Link to the register page
-  - Form validation and error display
-- Create a register page at `/register`:
-  - Name, email, password, confirm password fields
-  - Validation (passwords match, email format)
-  - Submit to `/api/auth/register`
-  - Redirect to sign-in on success
-- Update the bottom of the sidebar:
-  - Show user avatar (GitHub image, or initials fallback) and user name
-  - Dropdown opening upward on avatar click with a "Sign out" link
-  - Clicking the icon goes to `/profile`
-- Create a reusable avatar component handling both the image and initials cases
+<!-- Goals and Requirements -->
 
 ## Notes
 
-- Spec: `context/features/auth-phase-3-spec.md`
-- Avatar logic: use `user.image` if present, otherwise initials from the name (e.g. "Brad Traversy" -> "BT")
-- Replaces the NextAuth default pages (set `pages.signIn` in the auth config; `src/proxy.ts` currently redirects to the default sign-in page)
-- The spec's testing step 4 says "top bar" but the requirements say bottom of the sidebar; treating the sidebar as correct
-- Testing:
-  1. Go to `/sign-in` - verify the custom page renders
-  2. Sign in with GitHub - verify the flow works
-  3. Sign in with email/password - verify the flow works
-  4. Verify the avatar shows (GitHub image or initials)
-  5. Click the avatar - verify the dropdown appears
-  6. Click "Sign out" - verify logout and redirect
-  7. Go to `/register`, create a new account - verify redirect to sign-in
+<!--  Any extra notes -->
 
 ## History
 
@@ -56,3 +31,4 @@ In Progress
 - **Code Scanner Quick Wins** - Low-risk cleanups from the code-scanner audit: `getCurrentUserId` wrapped in React `cache()`, extracted `CardGrid` component for the dashboard card grids, `getInitials` ignores empty name parts (Completed)
 - **Auth Phase 1** - NextAuth v5 (`next-auth@beta`) with Prisma adapter and GitHub OAuth: split config (`src/auth.config.ts` edge-safe, `src/auth.ts` with JWT sessions and `user.id` on the session), `/api/auth/[...nextauth]` handlers, `src/proxy.ts` protecting `/dashboard/*` and redirecting to the default sign-in page, session type extension (Completed)
 - **Auth Phase 2** - Email/password sign-in: Credentials provider placeholder in `src/auth.config.ts` (with email/password form fields) overridden in `src/auth.ts` with Zod-validated bcryptjs `authorize`; `POST /api/auth/register` validates name, email, password (min 8) and matching confirmPassword with Zod, rejects existing emails (409), hashes with bcryptjs and creates the user; added `zod` dependency (Completed)
+- **Auth Phase 3** - Custom auth UI: `/sign-in` (email/password, GitHub button, error display) and `/register` (Zod-validated, posts to `/api/auth/register`, Sonner toast then redirect to sign-in) replacing the NextAuth default pages (`pages.signIn`); shared Zod schemas in `src/lib/validations/auth.ts`; sign-in/sign-out server actions; reusable `UserAvatar` (image or initials); sidebar user menu with Profile and Sign out dropdown opening upward; `getCurrentUserId` and the sidebar now use the session instead of the demo user; React Compiler enabled (Completed)
