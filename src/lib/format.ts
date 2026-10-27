@@ -11,3 +11,13 @@ export function formatRelativeTime(date: Date | string, now: number = Date.now()
 
   return new Date(date).toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
+
+export function getInitials(name: string): string {
+  return name
+    .split(" ")
+    .filter(Boolean)
+    .map((part) => part[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+}

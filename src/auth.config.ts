@@ -11,6 +11,7 @@ export const CREDENTIAL_FIELDS = {
 // The Credentials authorize is a placeholder; auth.ts supplies the bcrypt check.
 export default {
   providers: [GitHub, Credentials({ credentials: CREDENTIAL_FIELDS, authorize: () => null })],
+  pages: { signIn: "/sign-in" },
   callbacks: {
     authorized({ auth, request }) {
       const isProtected = request.nextUrl.pathname.startsWith("/dashboard");

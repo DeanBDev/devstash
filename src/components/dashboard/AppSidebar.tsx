@@ -15,10 +15,9 @@ import {
   SidebarRail,
   SidebarSeparator,
 } from "@/components/ui/sidebar";
+import { auth } from "@/auth";
 import { getFavoriteCollections, getRecentNonFavoriteCollections } from "@/lib/db/collections";
 import { getSystemItemTypes } from "@/lib/db/items";
-import { getCurrentUserId } from "@/lib/db/users";
-import { currentUser } from "@/lib/mock-data";
 
 const RECENT_COLLECTIONS_LIMIT = 5;
 
@@ -34,8 +33,10 @@ async function getSidebarData(userId: string | null) {
 }
 
 export default async function AppSidebar() {
+  const session = await auth();
+  const user = session?.user;
   const { types, favoriteCollections, recentCollections } = await getSidebarData(
-    await getCurrentUserId()
+    user?.id ?? null
   );
 
   return (
@@ -75,7 +76,11 @@ export default async function AppSidebar() {
 
       <SidebarSeparator className="mx-0" />
       <SidebarFooter>
-        <SidebarUser user={currentUser} />
+        <SidebarUser
+          name={user?.name ?? null}
+          email={user?.email ?? null}
+          image={user?.image ?? null}
+        />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
