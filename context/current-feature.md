@@ -1,18 +1,40 @@
-# Current Feature
+# Current Feature: Email Verification on Register
 
-<!-- Feature Name and Description -->
+Require new email/password users to verify their email address by clicking a link sent via Resend before they can sign in.
 
 ## Status
 
-Completed
+In Progress
 
 ## Goals
 
-<!-- Goals and Requirements -->
+- Install the `resend` package and add an email helper in `src/lib/email.ts`
+- On `POST /api/auth/register`, after creating the user:
+  - Generate a secure random verification token with a 24 hour expiry
+  - Store it in the existing `VerificationToken` model (no schema change expected)
+  - Email the user a verification link via Resend
+- Create `GET /api/auth/verify` (token + email):
+  - Validate the token and expiry, set `User.emailVerified`, and delete the token
+  - Redirect to `/sign-in` with a success or failure message
+- Block credentials sign-in for users whose email is not verified, with a clear "verify your email" message on the sign-in page
+- Update the register flow toast to tell the user to check their email for the verification link
+- GitHub OAuth sign-in is unaffected; the seeded demo user stays able to sign in (already has `emailVerified`)
 
 ## Notes
 
-<!--  Any extra notes -->
+- `RESEND_API_KEY` is in `.env`; add a placeholder for it to `.env.example`
+- Also needs a from-address and app base URL env vars (e.g. `EMAIL_FROM`, `AUTH_URL`/`NEXT_PUBLIC_APP_URL`); until a sending domain is verified in Resend, `onboarding@resend.dev` only delivers to the Resend account owner's email
+- Reuse the `VerificationToken` table; if a schema change turns out to be needed, use `prisma migrate dev` only (never `db push`) and the Neon `development` branch only
+- Validate input with Zod; verify route must not leak whether an email exists
+- Not in scope: resend-verification email, password reset
+- Testing:
+  1. Register with a real inbox the Resend account can deliver to
+  2. Verify the email arrives with a working link
+  3. Try to sign in before verifying - verify it is blocked with a clear message
+  4. Click the link - verify redirect to `/sign-in` with a success message
+  5. Sign in - verify redirect to `/dashboard`
+  6. Reuse the link and try an expired token - verify a failure message
+  7. Verify GitHub sign-in and the demo user still work
 
 ## History
 

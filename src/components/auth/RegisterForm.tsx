@@ -36,7 +36,7 @@ export default function RegisterForm() {
         });
         const result: { success: boolean; error?: string } = await response.json();
         if (result.success) {
-          toast.success("Account created. You can now sign in.");
+          toast.success("Account created. Check your email for a verification link.");
           router.push("/sign-in");
         } else {
           setError(result.error ?? REGISTER_ERROR);

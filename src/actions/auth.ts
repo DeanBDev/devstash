@@ -1,7 +1,8 @@
 "use server";
 
-import { AuthError } from "next-auth";
+import { AuthError, CredentialsSignin } from "next-auth";
 import { signIn, signOut } from "@/auth";
+import { EMAIL_NOT_VERIFIED_CODE } from "@/lib/auth-errors";
 import { signInSchema } from "@/lib/validations/auth";
 import type { ActionResult } from "@/types/actions";
 
@@ -18,6 +19,9 @@ export async function signInWithCredentials(input: unknown): Promise<ActionResul
     return { success: true, data: undefined };
   } catch (error) {
     if (error instanceof AuthError) {
+      if (error instanceof CredentialsSignin && error.code === EMAIL_NOT_VERIFIED_CODE) {
+        return { success: false, error: "Please verify your email before signing in" };
+      }
       return { success: false, error: "Invalid email or password" };
     }
     throw error;
