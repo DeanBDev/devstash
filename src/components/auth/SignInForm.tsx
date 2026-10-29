@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import type { FormEvent } from "react";
 import Link from "next/link";
+import { toast } from "sonner";
 import { signInWithCredentials, signInWithGitHub } from "@/actions/auth";
 import FormError from "@/components/auth/FormError";
 import FormField from "@/components/auth/FormField";
@@ -12,11 +13,16 @@ import { signInSchema } from "@/lib/validations/auth";
 
 interface SignInFormProps {
   initialError: string | null;
+  emailVerified: boolean;
 }
 
-export default function SignInForm({ initialError }: SignInFormProps) {
+export default function SignInForm({ initialError, emailVerified }: SignInFormProps) {
   const [error, setError] = useState<string | null>(initialError);
   const [isPending, startTransition] = useTransition();
+
+  useEffect(() => {
+    if (emailVerified) toast.success("Email verified. You can now sign in.");
+  }, [emailVerified]);
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
