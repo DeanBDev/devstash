@@ -1,40 +1,18 @@
-# Current Feature: Email Verification on Register
+# Current Feature
 
-Require new email/password users to verify their email address by clicking a link sent via Resend before they can sign in.
+<!-- Feature Name and Description -->
 
 ## Status
 
-In Progress
+Completed
 
 ## Goals
 
-- Install the `resend` package and add an email helper in `src/lib/email.ts`
-- On `POST /api/auth/register`, after creating the user:
-  - Generate a secure random verification token with a 24 hour expiry
-  - Store it in the existing `VerificationToken` model (no schema change expected)
-  - Email the user a verification link via Resend
-- Create `GET /api/auth/verify` (token + email):
-  - Validate the token and expiry, set `User.emailVerified`, and delete the token
-  - Redirect to `/sign-in` with a success or failure message
-- Block credentials sign-in for users whose email is not verified, with a clear "verify your email" message on the sign-in page
-- Update the register flow toast to tell the user to check their email for the verification link
-- GitHub OAuth sign-in is unaffected; the seeded demo user stays able to sign in (already has `emailVerified`)
+<!-- Goals and Requirements -->
 
 ## Notes
 
-- `RESEND_API_KEY` is in `.env`; add a placeholder for it to `.env.example`
-- Also needs a from-address and app base URL env vars (e.g. `EMAIL_FROM`, `AUTH_URL`/`NEXT_PUBLIC_APP_URL`); until a sending domain is verified in Resend, `onboarding@resend.dev` only delivers to the Resend account owner's email
-- Reuse the `VerificationToken` table; if a schema change turns out to be needed, use `prisma migrate dev` only (never `db push`) and the Neon `development` branch only
-- Validate input with Zod; verify route must not leak whether an email exists
-- Not in scope: resend-verification email, password reset
-- Testing:
-  1. Register with a real inbox the Resend account can deliver to
-  2. Verify the email arrives with a working link
-  3. Try to sign in before verifying - verify it is blocked with a clear message
-  4. Click the link - verify redirect to `/sign-in` with a success message
-  5. Sign in - verify redirect to `/dashboard`
-  6. Reuse the link and try an expired token - verify a failure message
-  7. Verify GitHub sign-in and the demo user still work
+<!--  Any extra notes -->
 
 ## History
 
@@ -54,3 +32,4 @@ In Progress
 - **Auth Phase 1** - NextAuth v5 (`next-auth@beta`) with Prisma adapter and GitHub OAuth: split config (`src/auth.config.ts` edge-safe, `src/auth.ts` with JWT sessions and `user.id` on the session), `/api/auth/[...nextauth]` handlers, `src/proxy.ts` protecting `/dashboard/*` and redirecting to the default sign-in page, session type extension (Completed)
 - **Auth Phase 2** - Email/password sign-in: Credentials provider placeholder in `src/auth.config.ts` (with email/password form fields) overridden in `src/auth.ts` with Zod-validated bcryptjs `authorize`; `POST /api/auth/register` validates name, email, password (min 8) and matching confirmPassword with Zod, rejects existing emails (409), hashes with bcryptjs and creates the user; added `zod` dependency (Completed)
 - **Auth Phase 3** - Custom auth UI: `/sign-in` (email/password, GitHub button, error display) and `/register` (Zod-validated, posts to `/api/auth/register`, Sonner toast then redirect to sign-in) replacing the NextAuth default pages (`pages.signIn`); shared Zod schemas in `src/lib/validations/auth.ts`; sign-in/sign-out server actions; reusable `UserAvatar` (image or initials); sidebar user menu with Profile and Sign out dropdown opening upward; `getCurrentUserId` and the sidebar now use the session instead of the demo user; React Compiler enabled (Completed)
+- **Email Verification** - New email/password users must verify their email before signing in: `POST /api/auth/register` creates a random token (stored SHA-256 hashed in `VerificationToken`, 24h expiry) and emails a link via Resend (`src/lib/email.ts`), rolling back the user if the send fails; `GET /api/auth/verify` validates the token, sets `emailVerified`, and redirects to `/sign-in` with a success toast or error; credentials sign-in is blocked for unverified users with a clear message (`EmailNotVerifiedError`); register toast tells users to check their email; `scripts/purge-users.ts` (`npm run db:purge-users`, dry run unless `--yes`) deletes all users except the demo user (Completed)
